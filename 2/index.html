@@ -1,0 +1,1573 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>BlueSite — Expandable Unit-Floor prototype</title>
+  <style>
+    :root {
+      --page-blue: #5880bf;
+      --topbar: #282828;
+      --teal: #1f7273;
+      --row: #262626;
+      --line: #3a3a3a;
+      --green: #58c965;
+      --cyan: #61bce4;
+      --muted: #a7bbdc;
+    }
+
+    * { box-sizing: border-box; }
+
+    html,
+    body {
+      width: 100%;
+      min-width: 1180px;
+      min-height: 100%;
+      margin: 0;
+      overflow: hidden;
+      color: #e6edf8;
+      background: var(--page-blue);
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 13px;
+    }
+
+    .app {
+      width: 100vw;
+      min-width: 1180px;
+      min-height: 753px;
+      pointer-events: none;
+      user-select: none;
+      background: var(--page-blue);
+    }
+
+    .topbar {
+      height: 35px;
+      padding: 0 14px 0 12px;
+      display: flex;
+      align-items: center;
+      background: var(--topbar);
+      box-shadow: 0 1px 3px rgba(0, 0, 0, .38);
+    }
+
+    .hamburger {
+      width: 17px;
+      height: 13px;
+      margin-right: 31px;
+      position: relative;
+      border-top: 2px solid #d8d8d8;
+      border-bottom: 2px solid #d8d8d8;
+      opacity: .86;
+    }
+
+    .hamburger::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 4px;
+      border-top: 2px solid #d8d8d8;
+    }
+
+    .brand {
+      color: #42bbb4;
+      font-size: 17px;
+      font-weight: 700;
+      letter-spacing: -.4px;
+      text-shadow: 0 0 3px rgba(50, 215, 204, .35);
+    }
+
+    .user {
+      margin-left: auto;
+      color: #42b5ad;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: .35px;
+    }
+
+    .user::after {
+      content: "";
+      display: inline-block;
+      margin-left: 8px;
+      vertical-align: 2px;
+      border: 4px solid transparent;
+      border-top-color: #4fbdb6;
+    }
+
+    .workspace {
+      min-height: 718px;
+      padding: 0 13px;
+      background:
+        linear-gradient(rgba(88, 128, 191, .97), rgba(88, 128, 191, .97)),
+        radial-gradient(circle at 20% 18%, #6d98d4 0, #5278b8 70%);
+    }
+
+    .breadcrumbs {
+      height: 43px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: #7cd0e9;
+      font-size: 12px;
+      font-weight: 600;
+      text-shadow: 0 0 3px rgba(41, 109, 170, .65);
+    }
+
+    .crumb-arrow {
+      width: 0;
+      height: 0;
+      border-top: 5px solid transparent;
+      border-bottom: 5px solid transparent;
+      border-left: 8px solid #f0f6ff;
+      filter: drop-shadow(0 0 2px rgba(255,255,255,.4));
+    }
+
+    .breadcrumbs .current { color: #f0f4fb; }
+
+    .intro {
+      height: 94px;
+      position: relative;
+      padding-top: 13px;
+    }
+
+    .store-block {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+    }
+
+    .store-copy {
+      width: 159px;
+    }
+
+    .eyebrow {
+      margin-bottom: 3px;
+      color: #b9c9e3;
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .store-id {
+      height: 27px;
+      overflow: hidden;
+      border-bottom: 1px solid rgba(218, 231, 249, .35);
+      color: #f0f4fb;
+      font-size: 14px;
+      line-height: 22px;
+      white-space: nowrap;
+    }
+
+    .sync-button {
+      height: 35px;
+      margin-top: 9px;
+      padding: 0 16px;
+      display: flex;
+      align-items: center;
+      border-radius: 2px;
+      color: #effff2;
+      background: #4ecc5d;
+      box-shadow: 0 2px 4px rgba(28, 88, 55, .48);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 1px;
+    }
+
+    .network-config {
+      width: 183px;
+      position: absolute;
+      top: 16px;
+      right: 1px;
+    }
+
+    .network-label {
+      margin-bottom: 3px;
+      color: #f0f4fb;
+      font-size: 14px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .network-label .hint {
+      color: #d0d6e1;
+      font-size: 12px;
+      font-weight: 400;
+    }
+
+    .preset-select {
+      height: 38px;
+      padding: 0 11px;
+      display: flex;
+      align-items: center;
+      border: 2px solid rgba(186, 215, 236, .75);
+      border-radius: 4px;
+      color: #f5f7fb;
+      font-weight: 700;
+      box-shadow: inset 0 0 9px rgba(46, 88, 141, .35);
+    }
+
+    .preset-select::after {
+      content: "";
+      margin-left: auto;
+      border: 4px solid transparent;
+      border-top-color: #f1f5fa;
+      transform: translateY(2px);
+    }
+
+    .update-button {
+      height: 33px;
+      margin-top: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 2px;
+      color: rgba(224, 232, 246, .4);
+      background: rgba(133, 169, 217, .47);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: .8px;
+    }
+
+    .details {
+      height: 272px;
+    }
+
+    .detail-row {
+      display: grid;
+      grid-template-columns: 116px minmax(0, 1fr);
+      align-items: center;
+    }
+
+    .detail-row.app-name { height: 36px; }
+    .detail-row.store-name { height: 38px; }
+    .detail-row.maturity { height: 52px; }
+    .detail-row.placements { height: 38px; }
+    .detail-row.orientation { height: 38px; }
+    .detail-row.client { height: 38px; }
+    .detail-row.admob { height: 32px; }
+
+    .detail-label {
+      color: #243d67;
+      font-size: 12px;
+      font-weight: 700;
+      text-shadow: 0 1px 1px rgba(122, 159, 208, .45);
+    }
+
+    .detail-value {
+      color: #f2f5fa;
+      font-size: 14px;
+      font-weight: 600;
+      white-space: nowrap;
+      text-shadow: 0 0 2px rgba(255, 255, 255, .24);
+    }
+
+    .segments {
+      width: fit-content;
+      min-height: 24px;
+      padding: 3px 10px;
+      display: flex;
+      align-items: center;
+      border: 1px solid rgba(218, 225, 233, .55);
+      border-radius: 4px;
+      color: #25303d;
+      background: rgba(242, 242, 239, .9);
+      box-shadow: inset 0 0 3px rgba(36, 55, 80, .17);
+      font-size: 13px;
+      font-weight: 700;
+      text-shadow: none;
+    }
+
+    .segments .off { color: #b9babe; font-weight: 500; }
+    .segments .pipe { margin: 0 4px; color: #74787d; font-weight: 400; }
+
+    .store-tabs { min-width: 498px; padding-right: 8px; }
+
+    .detail-row.placements .segments { min-width: 582px; }
+    .detail-row.orientation .segments { min-width: 357px; }
+
+    .select-box {
+      width: 230px;
+      height: 40px;
+      padding: 0 10px;
+      display: flex;
+      align-items: center;
+      border: 2px solid rgba(207, 222, 240, .72);
+      border-radius: 4px;
+      box-shadow: inset 0 0 8px rgba(38, 76, 125, .35);
+      color: #f5f7fa;
+      font-size: 15px;
+      font-weight: 700;
+    }
+
+    .select-box .close {
+      width: 16px;
+      height: 16px;
+      margin-left: auto;
+      position: relative;
+    }
+
+    .select-box .close::before,
+    .select-box .close::after {
+      content: "";
+      width: 18px;
+      position: absolute;
+      top: 7px;
+      left: -1px;
+      border-top: 2px solid #edf4fa;
+    }
+
+    .select-box .close::before { transform: rotate(45deg); }
+    .select-box .close::after { transform: rotate(-45deg); }
+
+    .select-box .chevron {
+      margin-left: 13px;
+      border: 4px solid transparent;
+      border-top-color: #edf4fa;
+      transform: translateY(3px);
+    }
+
+    .table {
+      width: 100%;
+      height: 360px;
+      margin-top: 15px;
+      overflow: hidden;
+      border-radius: 8px 8px 0 0;
+      background: var(--row);
+      box-shadow: 0 -1px 0 rgba(74, 113, 159, .35);
+    }
+
+    .table-grid {
+      display: grid;
+      grid-template-columns: 34px 58px 123px 228px 107px 138px minmax(427px, 1fr) 265px 150px;
+      align-items: center;
+    }
+
+    .table-head {
+      height: 45px;
+      color: #eefafa;
+      background: var(--teal);
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      text-shadow: 0 1px 2px rgba(255,255,255,.18);
+    }
+
+    .th-network { grid-column: 3; }
+    .th-account { grid-column: 4; }
+    .th-role { grid-column: 5; }
+    .th-monetization { grid-column: 6; }
+    .th-placements { grid-column: 7; }
+    .th-params { grid-column: 8; }
+    .th-status { grid-column: 9; }
+
+    .data-row {
+      position: relative;
+      color: #ebebeb;
+      background: var(--row);
+      border-bottom: 1px solid var(--line);
+      font-size: 11px;
+    }
+
+    .row-compact { height: 66px; }
+    .row-tall { height: 121px; }
+    .row-medium { height: 86px; background: #363636 !important; }
+
+    .rail {
+      width: 6px;
+      height: calc(100% - 20px);
+      align-self: center;
+      justify-self: center;
+      border-radius: 1px;
+      background: var(--green);
+      box-shadow: 0 0 4px rgba(68, 208, 89, .3);
+    }
+
+    .row-medium .rail { height: calc(100% - 22px); }
+
+    .row-selector {
+      width: 17px;
+      height: 17px;
+      justify-self: center;
+      border: 2px solid #eff4f8;
+      border-radius: 2px;
+      box-shadow: 0 0 2px rgba(255,255,255,.5);
+    }
+
+    .selected-ring {
+      width: 18px;
+      height: 18px;
+      position: absolute;
+      left: 33px;
+      top: 33px;
+      border: 3px solid #3bb0e8;
+      border-radius: 50%;
+      box-shadow: 0 0 4px rgba(50, 185, 241, .8);
+    }
+
+    .selected-ring::after {
+      content: "";
+      width: 6px;
+      height: 6px;
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      border-radius: 50%;
+      background: #90d9ff;
+    }
+
+    .network-name { padding-left: 15px; font-weight: 600; }
+
+    .th-network { padding-left: 15px; }
+
+    .account-box {
+      width: 199px;
+      height: 38px;
+      padding: 0 10px;
+      display: flex;
+      align-items: center;
+      border: 1px solid #4f5054;
+      border-radius: 4px;
+      color: #f1f1f1;
+      background: #29292b;
+      box-shadow: inset 0 0 5px rgba(0,0,0,.3);
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .account-box .small-close {
+      width: 13px;
+      height: 13px;
+      margin-left: auto;
+      position: relative;
+    }
+
+    .account-box .small-close::before,
+    .account-box .small-close::after {
+      content: "";
+      width: 16px;
+      position: absolute;
+      left: -1px;
+      top: 6px;
+      border-top: 2px solid #e6e6e6;
+    }
+
+    .account-box .small-close::before { transform: rotate(45deg); }
+    .account-box .small-close::after { transform: rotate(-45deg); }
+
+    .account-box .drop {
+      margin-left: 13px;
+      border: 5px solid transparent;
+      border-top-color: #ededed;
+      transform: translateY(3px);
+    }
+
+    .role-pill {
+      width: fit-content;
+      padding: 5px 7px;
+      border: 1px solid #2c5b37;
+      border-radius: 4px;
+      color: #5ed16d;
+      background: #263b29;
+      box-shadow: 0 0 3px rgba(65, 164, 75, .16);
+      font-size: 11px;
+    }
+
+    .monetization { font-weight: 600; }
+
+    .placement-lines {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 17px;
+    }
+
+    .waterfall-lines { gap: 8px; }
+
+    .placement-line {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-height: 25px;
+    }
+
+    .badge {
+      height: 25px;
+      min-width: 21px;
+      padding: 0 5px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 4px;
+      color: #f4fff6;
+      background: #52c963;
+      box-shadow: 0 0 5px rgba(66, 205, 86, .35);
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .chip {
+      height: 23px;
+      padding: 0 8px;
+      display: inline-flex;
+      align-items: center;
+      border: 1px solid #18506a;
+      border-radius: 3px;
+      color: #56b6e5;
+      background: #263037;
+      box-shadow: inset 0 0 4px rgba(11, 25, 32, .8);
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .chip.price {
+      border-color: #614b23;
+      color: #d2a03b;
+      background: #302c24;
+    }
+
+    .placement-line.dense { gap: 10px; }
+
+    .status {
+      color: #4a4a4a;
+      font-size: 11px;
+      white-space: nowrap;
+    }
+
+    .status::before {
+      content: "";
+      width: 8px;
+      height: 8px;
+      margin-right: 6px;
+      display: inline-block;
+      border-radius: 50%;
+      background: #5bc866;
+      box-shadow: 0 0 5px rgba(80, 211, 94, .5);
+    }
+
+    @media (max-width: 1280px) {
+      html, body, .app { min-width: 1180px; }
+      .table-grid { grid-template-columns: 28px 48px 92px 205px 92px 115px minmax(370px, 1fr) 140px 150px; }
+      .account-box { width: 180px; }
+    }
+
+    /* Version 2: expandable waterfall Unit-Floor management */
+    :root {
+      --amber: #d8a73e;
+      --red: #ef6a70;
+      --cyan: #61bce4;
+    }
+
+    html,
+    body {
+      overflow: auto;
+    }
+
+    .app {
+      min-height: 100vh;
+      pointer-events: auto;
+      user-select: text;
+    }
+
+    button,
+    input {
+      font: inherit;
+    }
+
+    button {
+      border: 0;
+      cursor: pointer;
+    }
+
+    button:focus-visible,
+    input:focus-visible {
+      outline: 2px solid #78d6f1;
+      outline-offset: 2px;
+    }
+
+    .sync-button {
+      border: 0;
+    }
+
+    .sync-button:disabled {
+      cursor: default;
+      opacity: .48;
+      box-shadow: none;
+    }
+
+    .table {
+      height: auto;
+      min-height: 360px;
+      overflow: visible;
+      border-radius: 8px;
+    }
+
+    .data-row {
+      min-height: 76px;
+      height: auto;
+    }
+
+    .data-row.waterfall-row {
+      min-height: 121px;
+      padding-right: 34px;
+    }
+
+    .placement-line .price-trigger {
+      appearance: none;
+    }
+
+    .price-trigger:hover,
+    .price-trigger:focus-visible {
+      border-color: #9e792e;
+      color: #f0c158;
+      background: #3b3424;
+    }
+
+    .row-expander {
+      width: 28px;
+      height: 28px;
+      position: absolute;
+      right: 9px;
+      top: 50%;
+      display: grid;
+      place-items: center;
+      border: 1px solid #555b5e;
+      border-radius: 4px;
+      color: #d7dcde;
+      background: #303335;
+      transform: translateY(-50%);
+      transition: background .15s ease, border-color .15s ease;
+    }
+
+    .row-expander:hover {
+      border-color: #388f8b;
+      background: #275452;
+    }
+
+    .row-expander::before {
+      content: "";
+      width: 8px;
+      height: 8px;
+      border-right: 2px solid currentColor;
+      border-bottom: 2px solid currentColor;
+      transform: translateY(-2px) rotate(45deg);
+      transition: transform .15s ease;
+    }
+
+    .waterfall-row.expanded .row-expander::before {
+      transform: translateY(2px) rotate(225deg);
+    }
+
+    .status-list {
+      width: 110px;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .status-line {
+      min-height: 14px;
+      display: grid;
+      grid-template-columns: 25px 9px minmax(0, 1fr);
+      align-items: center;
+      gap: 6px;
+      color: #8e9497;
+      font-size: 9px;
+      line-height: 1;
+      white-space: nowrap;
+      cursor: help;
+    }
+
+    .status-system {
+      color: #a9b0b4;
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: .35px;
+    }
+
+    .status-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #74797c;
+      box-shadow: 0 0 4px rgba(116, 121, 124, .45);
+    }
+
+    .status-line.done { color: #769a79; }
+    .status-line.done .status-dot { background: var(--green); box-shadow: 0 0 5px rgba(80, 211, 94, .55); }
+    .status-line.error { color: #c67c80; }
+    .status-line.error .status-dot { background: var(--red); box-shadow: 0 0 5px rgba(239, 106, 112, .55); }
+    .status-line.pending { color: #b99a5a; }
+    .status-line.pending .status-dot { background: var(--amber); box-shadow: 0 0 5px rgba(216, 167, 62, .55); }
+    .status-line.running { color: #7da9ba; }
+    .status-line.running .status-dot { background: var(--cyan); animation: pulse 1s ease-in-out infinite; }
+    .status-line.waiting { color: #85898b; }
+    .status-line.waiting .status-dot { background: #85898b; }
+    .status-line.na { color: #606568; }
+    .status-line.na .status-dot { border: 1px solid #676d70; background: transparent; box-shadow: none; }
+
+    @keyframes pulse {
+      50% { opacity: .35; box-shadow: 0 0 8px rgba(97, 188, 228, .8); }
+    }
+
+    .waterfall-detail {
+      padding: 18px 16px 20px;
+      border-bottom: 1px solid #464a4c;
+      background: #2d2f30;
+      box-shadow: inset 0 10px 20px rgba(0, 0, 0, .13);
+    }
+
+    .waterfall-detail[hidden] {
+      display: none;
+    }
+
+    .detail-toolbar {
+      min-height: 28px;
+      margin-bottom: 13px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: #bcc4c8;
+      font-size: 11px;
+    }
+
+    .detail-toolbar strong {
+      color: #f0f4f5;
+      font-size: 13px;
+    }
+
+    .pending-summary {
+      margin-left: auto;
+      color: #b9a16c;
+      font-size: 10px;
+    }
+
+    .undo-last {
+      padding: 5px 8px;
+      border: 1px solid #6e623d;
+      border-radius: 3px;
+      color: #e8cb82;
+      background: #3d3829;
+      font-size: 10px;
+    }
+
+    .unit-columns {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 18px;
+    }
+
+    .format-column {
+      min-width: 0;
+    }
+
+    .format-heading {
+      min-height: 28px;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      color: #edf1f2;
+    }
+
+    .format-heading h3 {
+      margin: 0;
+      font-size: 13px;
+      text-transform: uppercase;
+    }
+
+    .format-meta {
+      padding: 3px 6px;
+      border-radius: 3px;
+      color: #d0d4d5;
+      background: #55595b;
+      font-size: 9px;
+    }
+
+    .format-count {
+      margin-left: auto;
+      color: #8f979a;
+      font-size: 10px;
+    }
+
+    .unit-table {
+      overflow: hidden;
+      border: 1px solid #505456;
+      border-radius: 5px;
+      background: #27292a;
+    }
+
+    .unit-row {
+      min-height: 39px;
+      display: grid;
+      grid-template-columns: 28px 82px minmax(100px, 1fr) 58px;
+      align-items: center;
+      border-bottom: 1px solid #424547;
+      color: #d9dddf;
+    }
+
+    .unit-row:last-of-type {
+      border-bottom: 0;
+    }
+
+    .unit-index {
+      color: #8d9497;
+      text-align: center;
+    }
+
+    .unit-price {
+      color: #f3f5f5;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .unit-id {
+      overflow: hidden;
+      color: #bfc5c7;
+      font-family: Consolas, monospace;
+      font-size: 10px;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .unit-id.pending {
+      color: #b99a5a;
+      font-family: Arial, Helvetica, sans-serif;
+      font-style: italic;
+    }
+
+    .unit-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 4px;
+      padding-right: 6px;
+    }
+
+    .icon-button {
+      width: 23px;
+      height: 23px;
+      display: grid;
+      place-items: center;
+      border: 1px solid #545a5d;
+      border-radius: 3px;
+      color: #bfc6c8;
+      background: #303436;
+      font-size: 12px;
+    }
+
+    .icon-button:hover {
+      border-color: #387d7a;
+      color: #73d1cc;
+    }
+
+    .icon-button.delete:hover {
+      border-color: #8a474c;
+      color: #ff8f95;
+      background: #422d2f;
+    }
+
+    .unit-row.changed {
+      background: rgba(205, 158, 57, .055);
+    }
+
+    .unit-editor {
+      min-height: 45px;
+      display: grid;
+      grid-template-columns: 28px minmax(90px, 125px) minmax(105px, 1fr) 58px;
+      align-items: center;
+      border-bottom: 1px solid #4b4f51;
+      background: #303334;
+    }
+
+    .price-input {
+      width: calc(100% - 8px);
+      height: 29px;
+      padding: 0 8px;
+      border: 1px solid #3b9b96;
+      border-radius: 3px;
+      color: #fff;
+      background: #202526;
+    }
+
+    .editor-hint {
+      color: #b99a5a;
+      font-size: 9px;
+    }
+
+    .editor-error {
+      grid-column: 2 / -1;
+      padding: 0 8px 7px;
+      color: #ff9da2;
+      font-size: 9px;
+    }
+
+    .add-unit-row {
+      width: 100%;
+      min-height: 34px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      border-top: 1px dashed #4a4e50;
+      color: #7eaa89;
+      background: #292c2d;
+      font-size: 10px;
+      text-transform: uppercase;
+    }
+
+    .add-unit-row:hover {
+      color: #8fe19e;
+      background: #2e3431;
+    }
+
+    .add-unit-row strong {
+      font-size: 17px;
+      line-height: 1;
+    }
+
+    .status-tooltip {
+      width: min(330px, calc(100vw - 24px));
+      position: fixed;
+      z-index: 40;
+      padding: 10px 12px;
+      border: 1px solid #52595d;
+      border-radius: 4px;
+      color: #dbe2e5;
+      background: #202426;
+      box-shadow: 0 8px 24px rgba(0,0,0,.42);
+      font-size: 11px;
+      line-height: 1.45;
+      opacity: 0;
+      transform: translateY(3px);
+      pointer-events: none;
+      transition: opacity .12s ease, transform .12s ease;
+    }
+
+    .status-tooltip.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .status-tooltip strong {
+      display: block;
+      margin-bottom: 4px;
+      color: #f0f3f4;
+    }
+
+    .status-tooltip span {
+      color: #aeb8bc;
+    }
+
+    .toast {
+      max-width: 420px;
+      position: fixed;
+      right: 20px;
+      bottom: 20px;
+      z-index: 50;
+      padding: 11px 14px;
+      border: 1px solid #4d595d;
+      border-radius: 4px;
+      color: #edf1f2;
+      background: #222728;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, .42);
+      opacity: 0;
+      transform: translateY(12px);
+      pointer-events: none;
+      transition: .18s ease;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    @media (max-width: 1180px) {
+      .unit-columns {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="app" aria-label="PSVPortal Unit-Floor management prototype">
+    <header class="topbar">
+      <span class="hamburger" aria-hidden="true"></span>
+      <span class="brand">PSVPortal</span>
+      <span class="user">DEMO USER</span>
+    </header>
+
+    <section class="workspace">
+      <nav class="breadcrumbs" aria-label="Breadcrumb">
+        <span>Home</span><span class="crumb-arrow"></span>
+        <span>CAS.AI</span><span class="crumb-arrow"></span>
+        <span class="current">New Applications</span>
+      </nav>
+
+      <section class="intro">
+        <div class="store-block">
+          <div class="store-copy">
+            <div class="eyebrow">STORE ID:</div>
+            <div class="store-id">com.example.bluesite.demo</div>
+          </div>
+          <button class="sync-button" type="button" id="synchronizeButton" disabled>SYNCHRONIZE</button>
+        </div>
+
+        <aside class="network-config">
+          <div class="network-label">APP NET CONFIG <span class="hint">(presets):</span></div>
+          <div class="preset-select">Full MAX</div>
+          <div class="update-button">UPDATE NETWORKS</div>
+        </aside>
+      </section>
+
+      <section class="details">
+        <div class="detail-row app-name">
+          <div class="detail-label">APP NAME:</div>
+          <div class="detail-value">BlueSite — Unit-Floor demo</div>
+        </div>
+        <div class="detail-row store-name">
+          <div class="detail-label">STORE NAME:</div>
+          <div class="detail-value segments store-tabs">
+            <span class="off">Amazon</span><span class="pipe">|</span><span>Android</span><span class="pipe">|</span><span class="off">Huawei</span><span class="pipe">|</span><span class="off">iOS</span><span class="pipe">|</span><span class="off">RuStore</span><span class="pipe">|</span><span class="off">Samsung Galaxystore</span><span class="pipe">|</span><span class="off">Xiaomi</span>
+          </div>
+        </div>
+        <div class="detail-row maturity">
+          <div class="detail-label">MATURITY:</div>
+          <div class="detail-value select-box"><span>Adult</span><span class="close"></span><span class="chevron"></span></div>
+        </div>
+        <div class="detail-row placements">
+          <div class="detail-label">PLACEMENTS:</div>
+          <div class="detail-value segments">
+            <span>Banner</span><span class="pipe">|</span><span>Banner_native</span><span class="pipe">|</span><span>Interstitial</span><span class="pipe">|</span><span>Rewarded</span><span class="pipe">|</span><span class="off">Native</span><span class="pipe">|</span><span class="off">App_open</span><span class="pipe">|</span><span class="off">Mrec</span><span class="pipe">|</span><span class="off">Mrec_native</span>
+          </div>
+        </div>
+        <div class="detail-row orientation">
+          <div class="detail-label">ORIENTATION:</div>
+          <div class="detail-value segments">
+            <span class="off">Portrait</span><span class="pipe">|</span><span>Landscape</span><span class="pipe">|</span><span class="off">Both-portrait</span><span class="pipe">|</span><span class="off">Both-landscape</span>
+          </div>
+        </div>
+        <div class="detail-row client">
+          <div class="detail-label">Client:</div>
+          <div class="detail-value">BlueSite Demo (demo@example.com)</div>
+        </div>
+        <div class="detail-row admob">
+          <div class="detail-label">AdmobAppId:</div>
+          <div class="detail-value">ca-app-pub-0000000000000000~0000000000</div>
+        </div>
+      </section>
+
+      <section class="table" aria-label="Configured ad networks">
+        <div class="table-head table-grid">
+          <div class="th-network">NETWORK</div>
+          <div class="th-account">ACCOUNT</div>
+          <div class="th-role">ROLE</div>
+          <div class="th-monetization">MONETIZATION</div>
+          <div class="th-placements">PLACEMENTS</div>
+          <div class="th-params">PARAMS</div>
+          <div class="th-status">STATUS</div>
+        </div>
+
+        <div class="data-row row-compact table-grid" data-row-id="admob-bidding">
+          <div class="rail"></div>
+          <div class="row-selector"></div>
+          <div class="network-name">AdMob</div>
+          <div class="account-box">AdMob Demo<span class="small-close"></span><span class="drop"></span></div>
+          <div class="role-pill">network</div>
+          <div class="monetization">bidding</div>
+          <div class="placement-lines">
+            <div class="placement-line">
+              <span class="badge">B</span><span class="chip">MAX</span><span class="badge">I</span><span class="chip">MAX</span><span class="badge">R</span><span class="chip">MAX</span>
+            </div>
+          </div>
+          <div></div>
+          <div id="status-admob-bidding"></div>
+        </div>
+
+        <div class="data-row row-tall table-grid waterfall-row" id="admobWaterfallRow" data-row-id="admob-waterfall">
+          <div class="rail"></div>
+          <div class="row-selector"></div>
+          <div class="network-name">AdMob</div>
+          <div class="account-box">AdMob Demo<span class="small-close"></span><span class="drop"></span></div>
+          <div class="role-pill">network</div>
+          <div class="monetization">waterfall</div>
+          <div class="placement-lines waterfall-lines" id="waterfallSummary"></div>
+          <div></div>
+          <div id="status-admob-waterfall"></div>
+          <button class="row-expander" id="waterfallExpander" type="button" data-action="toggle-waterfall" aria-expanded="false" aria-controls="waterfallDetail" aria-label="Expand Unit-Floor details"></button>
+        </div>
+
+        <section class="waterfall-detail" id="waterfallDetail" aria-label="AdMob waterfall Unit-Floors" hidden>
+          <div class="detail-toolbar">
+            <strong>Waterfall Unit-Floors</strong>
+            <span>Click a price above or use the arrow to collapse</span>
+            <span class="pending-summary" id="pendingSummary">No pending changes</span>
+            <button class="undo-last" id="undoLastButton" type="button" hidden>UNDO LAST</button>
+          </div>
+          <div class="unit-columns" id="unitColumns"></div>
+        </section>
+
+        <div class="data-row row-medium table-grid" data-row-id="inmobi-bidding">
+          <div class="rail"></div>
+          <div class="row-selector"></div>
+          <div class="selected-ring"></div>
+          <div class="network-name">InMobi</div>
+          <div class="account-box">InMobi Demo<span class="small-close"></span><span class="drop"></span></div>
+          <div class="role-pill">network</div>
+          <div class="monetization">bidding</div>
+          <div class="placement-lines">
+            <div class="placement-line dense">
+              <span class="badge">B</span><span class="chip">CAS</span><span class="badge">BN</span><span class="chip">CAS</span><span class="badge">I</span><span class="chip">CAS</span><span class="badge">R</span><span class="chip">CAS</span>
+            </div>
+          </div>
+          <div></div>
+          <div id="status-inmobi-bidding"></div>
+        </div>
+      </section>
+    </section>
+  </main>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <div class="status-tooltip" id="statusTooltip" role="tooltip"><strong></strong><span></span></div>
+
+  <script>
+    (() => {
+      const formatNames = { B: "Banner", I: "Interstitial", R: "Rewarded" };
+      let temporaryId = 1;
+      let generatedUnitId = 7000000000;
+
+      function unit(id, price) {
+        return {
+          key: id || "temp-" + temporaryId++,
+          id: id,
+          price: price,
+          originalPrice: price,
+          change: null
+        };
+      }
+
+      function status(net, med, oneC) {
+        return { net: net, med: med, oneC: oneC };
+      }
+
+      const state = {
+        expanded: false,
+        editing: null,
+        processing: false,
+        syncedOnce: false,
+        lastSyncHadDelete: false,
+        deleted: [],
+        undo: null,
+        units: {
+          B: [
+            unit("9100000001", "x1.30"),
+            unit("9100000002", "x2.10"),
+            unit("9100000003", "x0.70"),
+            unit("9100000004", "x0.50"),
+            unit("9100000005", "x2.50"),
+            unit("9100000006", "x7.00"),
+            unit("9100000007", "x4.00")
+          ],
+          I: [
+            unit("9200000001", "x2.10"),
+            unit("9200000002", "x2.50"),
+            unit("9200000003", "x1.30"),
+            unit("9200000004", "x0.70"),
+            unit("9200000005", "x4.00"),
+            unit("9200000006", "x0.50"),
+            unit("9200000007", "x7.00")
+          ],
+          R: [
+            unit("9300000001", "x2.50"),
+            unit("9300000002", "x4.00"),
+            unit("9300000003", "x2.10"),
+            unit("9300000004", "x1.30"),
+            unit("9300000005", "x0.70"),
+            unit("9300000006", "x0.50"),
+            unit("9300000007", "x7.00")
+          ]
+        },
+        statuses: {
+          "admob-bidding": status("done", "na", "done"),
+          "admob-waterfall": status("error", "done", "waiting"),
+          "inmobi-bidding": status("done", "na", "done")
+        }
+      };
+
+      const els = {
+        row: document.getElementById("admobWaterfallRow"),
+        expander: document.getElementById("waterfallExpander"),
+        detail: document.getElementById("waterfallDetail"),
+        summary: document.getElementById("waterfallSummary"),
+        columns: document.getElementById("unitColumns"),
+        pendingSummary: document.getElementById("pendingSummary"),
+        undo: document.getElementById("undoLastButton"),
+        synchronize: document.getElementById("synchronizeButton"),
+        toast: document.getElementById("toast"),
+        statusTooltip: document.getElementById("statusTooltip")
+      };
+
+      function escapeHtml(value) {
+        return String(value).replace(/[&<>"]/g, function(char) {
+          return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[char];
+        });
+      }
+
+      function pendingCount() {
+        let count = state.deleted.length;
+        Object.keys(state.units).forEach(function(format) {
+          count += state.units[format].filter(function(item) { return item.change; }).length;
+        });
+        return count;
+      }
+
+      function statusLabel(value, system) {
+        if (value === "done" && system === "1С") return "Recorded";
+        return {
+          done: "Completed",
+          error: "Error",
+          pending: "Pending",
+          running: "In progress",
+          waiting: "Waiting",
+          na: "Not required"
+        }[value];
+      }
+
+      function statusDetails(rowId, system, value) {
+        if (rowId === "admob-waterfall") {
+          if (value === "pending") return "Unit-Floor changes are saved locally and will be sent during synchronization.";
+          if (value === "running") return "The latest Unit-Floor changes are currently being processed.";
+          if (system === "NET" && value === "error") return "The previous network operation reported a Unit-Floor conflict. Open the row to review the current values.";
+          if (system === "MED" && value === "done") return "CAS mediation has the latest saved waterfall configuration.";
+          if (system === "1С" && value === "waiting") return "1C is waiting for the network operation to finish.";
+          if (system === "1С" && value === "error") return "Deleting Unit-Floors is not supported in 1C and requires manual resolution.";
+          return "The waterfall configuration is synchronized for this system.";
+        }
+        if (value === "na") return "This system is not required for bidding configuration.";
+        return "The latest bidding configuration has been confirmed.";
+      }
+
+      function renderStatus(rowId) {
+        const target = document.getElementById("status-" + rowId);
+        const item = state.statuses[rowId];
+        const lines = [["NET", item.net], ["MED", item.med], ["1С", item.oneC]];
+        target.innerHTML = '<div class="status-list">' + lines.map(function(entry) {
+          const system = entry[0];
+          const value = entry[1];
+          const label = statusLabel(value, system);
+          const details = statusDetails(rowId, system, value);
+          return '<span class="status-line ' + value + '" tabindex="0" data-system="' + system + '" data-status="' + label + '" data-tooltip="' + escapeHtml(details) + '" aria-label="' + system + ': ' + label + '. ' + escapeHtml(details) + '">' +
+            '<span class="status-system">' + system + '</span><span class="status-dot" aria-hidden="true"></span><span>' + label + '</span></span>';
+        }).join("") + "</div>";
+      }
+
+      function renderStatuses() {
+        Object.keys(state.statuses).forEach(renderStatus);
+      }
+
+      function renderSummary() {
+        els.summary.innerHTML = Object.keys(state.units).map(function(format) {
+          const units = state.units[format];
+          const visible = units.slice(0, 3);
+          const more = Math.max(0, units.length - visible.length);
+          return '<div class="placement-line dense"><span class="badge">' + format + '</span><span class="chip">CAS</span>' +
+            visible.map(function(item) {
+              return '<button class="chip price price-trigger" type="button" data-action="toggle-waterfall" aria-expanded="' + state.expanded + '">' + escapeHtml(item.price) + '</button>';
+            }).join("") +
+            (more ? '<button class="chip price price-trigger" type="button" data-action="toggle-waterfall" aria-expanded="' + state.expanded + '">+' + more + '</button>' : "") +
+            "</div>";
+        }).join("");
+      }
+
+      function editorHtml(format) {
+        const editing = state.editing;
+        const number = editing.mode === "add" ? state.units[format].length + 1 : state.units[format].findIndex(function(item) { return item.key === editing.key; }) + 1;
+        return '<div class="unit-editor"><span class="unit-index">' + number + '</span>' +
+          '<input class="price-input" data-price-input value="' + escapeHtml(editing.value) + '" aria-label="Unit-Floor price, for example x1.30">' +
+          '<span class="editor-hint">' + (editing.mode === "add" ? "Unit ID after synchronization" : "Edit price") + '</span>' +
+          '<span class="unit-actions"><button class="icon-button" type="button" data-action="save-unit" title="Save" aria-label="Save">✓</button>' +
+          '<button class="icon-button" type="button" data-action="cancel-edit" title="Cancel" aria-label="Cancel">×</button></span>' +
+          (editing.error ? '<span class="editor-error">' + escapeHtml(editing.error) + '</span>' : "") + "</div>";
+      }
+
+      function unitRowHtml(format, item, index) {
+        if (state.editing && state.editing.format === format && state.editing.key === item.key) return editorHtml(format);
+        const changed = item.change ? " changed" : "";
+        const disabled = state.processing ? " disabled" : "";
+        const idClass = item.id ? "unit-id" : "unit-id pending";
+        const idText = item.id || "After synchronization";
+        return '<div class="unit-row' + changed + '" data-unit-key="' + escapeHtml(item.key) + '">' +
+          '<span class="unit-index">' + (index + 1) + '</span>' +
+          '<span class="unit-price">' + escapeHtml(item.price) + '</span>' +
+          '<span class="' + idClass + '" title="' + escapeHtml(idText) + '">' + escapeHtml(idText) + '</span>' +
+          '<span class="unit-actions"><button class="icon-button" type="button" data-action="edit-unit" data-format="' + format + '" data-key="' + escapeHtml(item.key) + '" title="Edit" aria-label="Edit ' + escapeHtml(item.price) + '"' + disabled + '>✎</button>' +
+          '<button class="icon-button delete" type="button" data-action="delete-unit" data-format="' + format + '" data-key="' + escapeHtml(item.key) + '" title="Delete" aria-label="Delete ' + escapeHtml(item.price) + '"' + disabled + '>×</button></span></div>';
+      }
+
+      function renderColumns() {
+        els.columns.innerHTML = Object.keys(state.units).map(function(format) {
+          const units = state.units[format];
+          const rows = units.map(function(item, index) { return unitRowHtml(format, item, index); }).join("");
+          const isAdding = state.editing && state.editing.format === format && state.editing.mode === "add";
+          const adding = isAdding ? editorHtml(format) : "";
+          const disabled = state.processing ? " disabled" : "";
+          const addControl = isAdding ? "" : '<button class="add-unit-row" type="button" data-action="add-unit" data-format="' + format + '"' + disabled + '><strong>＋</strong> Add Unit-Floor</button>';
+          return '<section class="format-column"><div class="format-heading"><h3>' + formatNames[format] + '</h3>' +
+            '<span class="format-meta">multiplier</span><span class="format-meta">ascending</span>' +
+            '<span class="format-count">' + units.length + ' units</span></div>' +
+            '<div class="unit-table">' + rows + adding + addControl + '</div></section>';
+        }).join("");
+
+        const input = els.columns.querySelector("[data-price-input]");
+        if (input) {
+          input.focus();
+          input.setSelectionRange(input.value.length, input.value.length);
+        }
+      }
+
+      function renderExpansion() {
+        els.detail.hidden = !state.expanded;
+        els.row.classList.toggle("expanded", state.expanded);
+        els.expander.setAttribute("aria-expanded", String(state.expanded));
+        els.expander.setAttribute("aria-label", state.expanded ? "Collapse Unit-Floor details" : "Expand Unit-Floor details");
+      }
+
+      function renderPending() {
+        const count = pendingCount();
+        els.pendingSummary.textContent = count ? count + (count === 1 ? " pending change" : " pending changes") : "No pending changes";
+        els.synchronize.disabled = !count || state.processing;
+        els.synchronize.textContent = state.processing ? "SYNCHRONIZING…" : "SYNCHRONIZE";
+        els.undo.hidden = !state.undo || state.processing;
+      }
+
+      function render() {
+        renderExpansion();
+        renderSummary();
+        renderColumns();
+        renderStatuses();
+        renderPending();
+      }
+
+      function toggleWaterfall() {
+        state.expanded = !state.expanded;
+        if (!state.expanded) state.editing = null;
+        render();
+      }
+
+      function normalizePrice(raw) {
+        const cleaned = raw.trim().toLowerCase().replace(",", ".");
+        const match = cleaned.match(/^x?(\d+(?:\.\d{1,2})?)$/);
+        if (!match) return null;
+        const value = Number(match[1]);
+        if (!Number.isFinite(value) || value <= 0 || value > 999) return null;
+        return "x" + value.toFixed(2);
+      }
+
+      function markPending() {
+        state.statuses["admob-waterfall"] = status("pending", "pending", "waiting");
+      }
+
+      function restoreSettledStatus() {
+        if (state.lastSyncHadDelete) state.statuses["admob-waterfall"] = status("done", "done", "error");
+        else if (state.syncedOnce) state.statuses["admob-waterfall"] = status("done", "done", "done");
+        else state.statuses["admob-waterfall"] = status("error", "done", "waiting");
+      }
+
+      function saveUnit() {
+        if (!state.editing) return;
+        const input = els.columns.querySelector("[data-price-input]");
+        const normalized = normalizePrice(input ? input.value : "");
+        if (!normalized) {
+          state.editing.error = "Enter a positive price, for example x1.30";
+          renderColumns();
+          return;
+        }
+        const list = state.units[state.editing.format];
+        const duplicate = list.some(function(item) {
+          return item.price === normalized && item.key !== state.editing.key;
+        });
+        if (duplicate) {
+          state.editing.error = "This price already exists in " + formatNames[state.editing.format];
+          renderColumns();
+          return;
+        }
+
+        if (state.editing.mode === "add") {
+          const created = unit(null, normalized);
+          created.change = "add";
+          list.push(created);
+          state.undo = { type: "add", format: state.editing.format, key: created.key };
+          showToast("Unit-Floor saved. Unit ID will appear after synchronization.");
+        } else {
+          const item = list.find(function(candidate) { return candidate.key === state.editing.key; });
+          if (!item) return;
+          if (item.price === normalized) {
+            state.editing = null;
+            render();
+            return;
+          }
+          const before = Object.assign({}, item);
+          item.price = normalized;
+          item.change = item.id ? (item.price === item.originalPrice ? null : "edit") : "add";
+          state.undo = { type: "edit", format: state.editing.format, key: item.key, before: before };
+          showToast("Unit-Floor price updated.");
+        }
+
+        state.editing = null;
+        if (pendingCount()) markPending();
+        else restoreSettledStatus();
+        render();
+      }
+
+      function deleteUnit(format, key) {
+        const list = state.units[format];
+        const index = list.findIndex(function(item) { return item.key === key; });
+        if (index < 0) return;
+        const removed = list.splice(index, 1)[0];
+        if (removed.id) state.deleted.push({ format: format, item: removed });
+        state.undo = { type: "delete", format: format, index: index, item: removed };
+        state.editing = null;
+        if (pendingCount()) markPending();
+        else restoreSettledStatus();
+        showToast("Unit-Floor deleted. You can undo the last action.");
+        render();
+      }
+
+      function undoLast() {
+        const action = state.undo;
+        if (!action) return;
+        const list = state.units[action.format];
+        if (action.type === "add") {
+          const index = list.findIndex(function(item) { return item.key === action.key; });
+          if (index >= 0) list.splice(index, 1);
+        }
+        if (action.type === "edit") {
+          const index = list.findIndex(function(item) { return item.key === action.key; });
+          if (index >= 0) list[index] = action.before;
+        }
+        if (action.type === "delete") {
+          list.splice(action.index, 0, action.item);
+          state.deleted = state.deleted.filter(function(entry) { return entry.item.key !== action.item.key; });
+        }
+        state.undo = null;
+        if (pendingCount()) markPending();
+        else restoreSettledStatus();
+        showToast("Last change undone.");
+        render();
+      }
+
+      function synchronize() {
+        if (!pendingCount() || state.processing) return;
+        const hadDelete = state.deleted.length > 0;
+        state.processing = true;
+        state.editing = null;
+        state.statuses["admob-waterfall"] = status("running", "running", "waiting");
+        render();
+        showToast("Synchronizing Unit-Floors…");
+
+        window.setTimeout(function() {
+          state.statuses["admob-waterfall"] = status("done", "running", "waiting");
+          renderStatuses();
+        }, 700);
+
+        window.setTimeout(function() {
+          Object.keys(state.units).forEach(function(format) {
+            state.units[format].forEach(function(item) {
+              if (!item.id) item.id = String(generatedUnitId++);
+              item.originalPrice = item.price;
+              item.change = null;
+            });
+          });
+          state.deleted = [];
+          state.undo = null;
+          state.processing = false;
+          state.syncedOnce = true;
+          state.lastSyncHadDelete = hadDelete;
+          restoreSettledStatus();
+          render();
+          showToast(hadDelete ? "Networks synchronized. 1C deletion needs manual resolution." : "Unit-Floors synchronized and Unit IDs assigned.");
+        }, 1500);
+      }
+
+      let toastTimer;
+      function showToast(message) {
+        window.clearTimeout(toastTimer);
+        els.toast.textContent = message;
+        els.toast.classList.add("show");
+        toastTimer = window.setTimeout(function() { els.toast.classList.remove("show"); }, 2600);
+      }
+
+      function showStatusTooltip(line) {
+        const title = els.statusTooltip.querySelector("strong");
+        const description = els.statusTooltip.querySelector("span");
+        title.textContent = line.dataset.system + " · " + line.dataset.status;
+        description.textContent = line.dataset.tooltip;
+        els.statusTooltip.classList.add("show");
+        const lineRect = line.getBoundingClientRect();
+        const tooltipRect = els.statusTooltip.getBoundingClientRect();
+        let left = lineRect.left - tooltipRect.width - 10;
+        if (left < 8) left = lineRect.right + 10;
+        left = Math.min(left, window.innerWidth - tooltipRect.width - 8);
+        const top = Math.max(8, Math.min(lineRect.top, window.innerHeight - tooltipRect.height - 8));
+        els.statusTooltip.style.left = left + "px";
+        els.statusTooltip.style.top = top + "px";
+      }
+
+      function hideStatusTooltip() {
+        els.statusTooltip.classList.remove("show");
+      }
+
+      document.addEventListener("click", function(event) {
+        const button = event.target.closest("button[data-action]");
+        if (!button || button.disabled) return;
+        const action = button.dataset.action;
+        if (action === "toggle-waterfall") toggleWaterfall();
+        if (action === "add-unit") {
+          state.expanded = true;
+          state.editing = { mode: "add", format: button.dataset.format, key: "new", value: "x", error: null };
+          render();
+        }
+        if (action === "edit-unit") {
+          const item = state.units[button.dataset.format].find(function(candidate) { return candidate.key === button.dataset.key; });
+          if (!item) return;
+          state.editing = { mode: "edit", format: button.dataset.format, key: item.key, value: item.price, error: null };
+          renderColumns();
+        }
+        if (action === "delete-unit") deleteUnit(button.dataset.format, button.dataset.key);
+        if (action === "save-unit") saveUnit();
+        if (action === "cancel-edit") {
+          state.editing = null;
+          renderColumns();
+        }
+      });
+
+      document.addEventListener("keydown", function(event) {
+        if (!event.target.matches("[data-price-input]")) return;
+        if (event.key === "Enter") saveUnit();
+        if (event.key === "Escape") {
+          state.editing = null;
+          renderColumns();
+        }
+      });
+
+      document.addEventListener("mouseover", function(event) {
+        const line = event.target.closest(".status-line");
+        if (line) showStatusTooltip(line);
+      });
+
+      document.addEventListener("mouseout", function(event) {
+        const line = event.target.closest(".status-line");
+        if (line && !line.contains(event.relatedTarget)) hideStatusTooltip();
+      });
+
+      document.addEventListener("focusin", function(event) {
+        const line = event.target.closest(".status-line");
+        if (line) showStatusTooltip(line);
+      });
+
+      document.addEventListener("focusout", function(event) {
+        if (event.target.closest(".status-line")) hideStatusTooltip();
+      });
+
+      els.synchronize.addEventListener("click", synchronize);
+      els.undo.addEventListener("click", undoLast);
+      render();
+    })();
+  </script>
+</body>
+</html>

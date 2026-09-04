@@ -1,9 +1,10 @@
 # BlueSite — UI prototypes
 
-Two static versions of a BlueSite / PSVPortal-like screen:
+Three front-end versions of a BlueSite / PSVPortal-like screen:
 
 - The repository root contains the original non-interactive recreation.
 - `/1/` contains the interactive Unit-Floor management prototype.
+- `/2/` contains the original layout with expandable waterfall Unit-Floor tables.
 
 It is a front-end demonstration only: no request is sent to ad networks, mediation, or 1C. Changes live in browser memory and reset after a page reload.
 
@@ -25,5 +26,6 @@ The repository root contains `index.html`, so GitHub Pages can publish it withou
 3. Choose branch `main` and folder `/(root)`, then save.
 4. The original version will be published at `https://slavaivakin-cas.github.io/BlueSite/`.
 5. The interactive version will be published at `https://slavaivakin-cas.github.io/BlueSite/1/`.
+6. The expandable-table version will be published at `https://slavaivakin-cas.github.io/BlueSite/2/`.
 
 All visible app, account, e-mail, and AdMob identifiers in this published version are demo values.
