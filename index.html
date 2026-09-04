@@ -1,0 +1,1307 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>BlueSite — Interactive Unit-Floor prototype</title>
+  <style>
+    :root {
+      --page-blue: #5880bf;
+      --topbar: #282828;
+      --teal: #1f7273;
+      --teal-bright: #39b8b2;
+      --row: #262626;
+      --row-alt: #303030;
+      --line: #414141;
+      --green: #58c965;
+      --cyan: #61bce4;
+      --amber: #d8a73e;
+      --red: #ef6a70;
+      --muted: #9aa4ad;
+      --control: #303235;
+    }
+
+    * { box-sizing: border-box; }
+
+    html,
+    body {
+      width: 100%;
+      min-width: 1240px;
+      min-height: 100%;
+      margin: 0;
+      color: #e6edf8;
+      background: var(--page-blue);
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 13px;
+    }
+
+    button,
+    input { font: inherit; }
+
+    button { cursor: pointer; }
+    button:focus-visible,
+    input:focus-visible {
+      outline: 2px solid #8bdcff;
+      outline-offset: 2px;
+    }
+
+    .app {
+      min-width: 1240px;
+      min-height: 100vh;
+      background: var(--page-blue);
+    }
+
+    .topbar {
+      height: 35px;
+      padding: 0 14px 0 12px;
+      display: flex;
+      align-items: center;
+      background: var(--topbar);
+      box-shadow: 0 1px 3px rgba(0, 0, 0, .38);
+    }
+
+    .hamburger {
+      width: 17px;
+      height: 13px;
+      margin-right: 31px;
+      position: relative;
+      border-top: 2px solid #d8d8d8;
+      border-bottom: 2px solid #d8d8d8;
+      opacity: .86;
+    }
+
+    .hamburger::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 4px;
+      border-top: 2px solid #d8d8d8;
+    }
+
+    .brand {
+      color: #42bbb4;
+      font-size: 17px;
+      font-weight: 700;
+      letter-spacing: -.4px;
+    }
+
+    .prototype-label {
+      margin-left: 12px;
+      padding: 3px 7px;
+      border: 1px solid #4c7675;
+      border-radius: 10px;
+      color: #8ccfcb;
+      font-size: 9px;
+      letter-spacing: .7px;
+      text-transform: uppercase;
+    }
+
+    .user {
+      margin-left: auto;
+      color: #42b5ad;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: .35px;
+    }
+
+    .user::after {
+      content: "";
+      display: inline-block;
+      margin-left: 8px;
+      vertical-align: 2px;
+      border: 4px solid transparent;
+      border-top-color: #4fbdb6;
+    }
+
+    .workspace {
+      min-height: calc(100vh - 35px);
+      padding: 0 13px 28px;
+      background:
+        linear-gradient(rgba(88, 128, 191, .97), rgba(88, 128, 191, .97)),
+        radial-gradient(circle at 20% 18%, #6d98d4 0, #5278b8 70%);
+    }
+
+    .breadcrumbs {
+      height: 43px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: #7cd0e9;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .crumb-arrow {
+      width: 0;
+      height: 0;
+      border-top: 5px solid transparent;
+      border-bottom: 5px solid transparent;
+      border-left: 8px solid #f0f6ff;
+    }
+
+    .breadcrumbs .current { color: #f0f4fb; }
+
+    .intro {
+      height: 94px;
+      position: relative;
+      padding-top: 13px;
+    }
+
+    .store-block { display: flex; align-items: flex-start; gap: 8px; }
+    .store-copy { width: 159px; }
+
+    .eyebrow {
+      margin-bottom: 3px;
+      color: #b9c9e3;
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .store-id {
+      height: 27px;
+      overflow: hidden;
+      border-bottom: 1px solid rgba(218, 231, 249, .35);
+      color: #f0f4fb;
+      font-size: 14px;
+      line-height: 22px;
+      white-space: nowrap;
+    }
+
+    .sync-button {
+      height: 35px;
+      margin-top: 9px;
+      padding: 0 16px;
+      display: flex;
+      align-items: center;
+      border: 0;
+      border-radius: 2px;
+      color: #effff2;
+      background: #4ecc5d;
+      box-shadow: 0 2px 4px rgba(28, 88, 55, .48);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 1px;
+    }
+
+    .network-config {
+      width: 300px;
+      position: absolute;
+      top: 16px;
+      right: 1px;
+    }
+
+    .network-label {
+      margin-bottom: 3px;
+      color: #f0f4fb;
+      font-size: 14px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .network-label .hint { color: #d0d6e1; font-size: 12px; font-weight: 400; }
+
+    .preset-select {
+      width: 183px;
+      height: 38px;
+      padding: 0 11px;
+      display: flex;
+      align-items: center;
+      border: 2px solid rgba(186, 215, 236, .75);
+      border-radius: 4px;
+      color: #f5f7fb;
+      font-weight: 700;
+      box-shadow: inset 0 0 9px rgba(46, 88, 141, .35);
+    }
+
+    .preset-select::after {
+      content: "";
+      margin-left: auto;
+      border: 4px solid transparent;
+      border-top-color: #f1f5fa;
+      transform: translateY(2px);
+    }
+
+    .update-top {
+      width: 183px;
+      height: 33px;
+      margin-top: 10px;
+      border: 0;
+      border-radius: 2px;
+      color: #effff2;
+      background: #2a8682;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .7px;
+      transition: .15s ease;
+    }
+
+    .update-top:disabled {
+      cursor: default;
+      color: rgba(224, 232, 246, .44);
+      background: rgba(133, 169, 217, .47);
+    }
+
+    .details { height: 272px; }
+
+    .detail-row {
+      display: grid;
+      grid-template-columns: 116px minmax(0, 1fr);
+      align-items: center;
+    }
+
+    .detail-row.app-name { height: 36px; }
+    .detail-row.store-name { height: 38px; }
+    .detail-row.maturity { height: 52px; }
+    .detail-row.placements { height: 38px; }
+    .detail-row.orientation { height: 38px; }
+    .detail-row.client { height: 38px; }
+    .detail-row.admob { height: 32px; }
+
+    .detail-label {
+      color: #243d67;
+      font-size: 12px;
+      font-weight: 700;
+      text-shadow: 0 1px 1px rgba(122, 159, 208, .45);
+    }
+
+    .detail-value {
+      color: #f2f5fa;
+      font-size: 14px;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .segments {
+      width: fit-content;
+      min-height: 24px;
+      padding: 3px 10px;
+      display: flex;
+      align-items: center;
+      border: 1px solid rgba(218, 225, 233, .55);
+      border-radius: 4px;
+      color: #25303d;
+      background: rgba(242, 242, 239, .9);
+      box-shadow: inset 0 0 3px rgba(36, 55, 80, .17);
+      font-size: 13px;
+      font-weight: 700;
+      text-shadow: none;
+    }
+
+    .segments .off { color: #b9babe; font-weight: 500; }
+    .segments .pipe { margin: 0 4px; color: #74787d; font-weight: 400; }
+    .store-tabs { min-width: 498px; padding-right: 8px; }
+    .detail-row.placements .segments { min-width: 582px; }
+    .detail-row.orientation .segments { min-width: 357px; }
+
+    .select-box {
+      width: 230px;
+      height: 40px;
+      padding: 0 10px;
+      display: flex;
+      align-items: center;
+      border: 2px solid rgba(207, 222, 240, .72);
+      border-radius: 4px;
+      box-shadow: inset 0 0 8px rgba(38, 76, 125, .35);
+      color: #f5f7fa;
+      font-size: 15px;
+      font-weight: 700;
+    }
+
+    .select-box .close {
+      width: 16px;
+      height: 16px;
+      margin-left: auto;
+      position: relative;
+    }
+
+    .select-box .close::before,
+    .select-box .close::after,
+    .small-close::before,
+    .small-close::after {
+      content: "";
+      position: absolute;
+      border-top: 2px solid #edf4fa;
+      transform-origin: center;
+    }
+
+    .select-box .close::before,
+    .select-box .close::after { width: 18px; top: 7px; left: -1px; }
+    .select-box .close::before,
+    .small-close::before { transform: rotate(45deg); }
+    .select-box .close::after,
+    .small-close::after { transform: rotate(-45deg); }
+
+    .select-box .chevron {
+      margin-left: 13px;
+      border: 4px solid transparent;
+      border-top-color: #edf4fa;
+      transform: translateY(3px);
+    }
+
+    .change-bar {
+      min-height: 43px;
+      margin-top: 15px;
+      padding: 8px 14px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      border: 1px solid rgba(76, 75, 66, .72);
+      border-radius: 7px 7px 0 0;
+      color: #b5bdc2;
+      background: #303234;
+      box-shadow: 0 -1px 0 rgba(74, 113, 159, .35);
+    }
+
+    .change-bar.has-changes {
+      border-color: #7b642e;
+      color: #f2e6c7;
+      background: #403821;
+    }
+
+    .change-dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: #737b80;
+    }
+
+    .has-changes .change-dot {
+      background: var(--amber);
+      box-shadow: 0 0 7px rgba(216, 167, 62, .55);
+    }
+
+    .change-title { font-weight: 700; }
+    .change-hint { color: #a9b2b6; font-size: 11px; }
+    .bar-spacer { flex: 1; }
+
+    .bar-button {
+      min-height: 27px;
+      padding: 0 10px;
+      border: 1px solid #666b6e;
+      border-radius: 3px;
+      color: #e9edef;
+      background: #373a3c;
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .bar-button.primary { border-color: #2b958f; background: #227773; }
+    .bar-button:disabled { cursor: default; opacity: .42; }
+
+    .review-panel {
+      display: none;
+      padding: 10px 14px 13px;
+      border: 1px solid #705f33;
+      border-top: 0;
+      color: #e8e8e8;
+      background: #2d2b25;
+    }
+
+    .review-panel.open { display: block; }
+    .review-list { margin: 0; padding: 0; list-style: none; }
+    .review-list li { display: flex; gap: 9px; padding: 6px 0; border-bottom: 1px solid #464238; }
+    .review-list li:last-child { border-bottom: 0; }
+    .review-kind { min-width: 51px; color: var(--amber); font-weight: 700; text-transform: uppercase; }
+
+    .table {
+      width: 100%;
+      min-width: 1320px;
+      overflow: hidden;
+      border-radius: 0 0 8px 8px;
+      background: var(--row);
+    }
+
+    .table-grid {
+      display: grid;
+      grid-template-columns: 34px 52px 105px 214px 102px 118px minmax(520px, 1fr) 105px 210px;
+      align-items: center;
+    }
+
+    .table-head {
+      height: 45px;
+      color: #eefafa;
+      background: var(--teal);
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .th-network { grid-column: 3; padding-left: 12px; }
+    .th-account { grid-column: 4; }
+    .th-role { grid-column: 5; }
+    .th-monetization { grid-column: 6; }
+    .th-placements { grid-column: 7; }
+    .th-params { grid-column: 8; }
+    .th-status { grid-column: 9; }
+
+    .data-row {
+      min-height: 76px;
+      position: relative;
+      color: #ebebeb;
+      background: var(--row);
+      border-bottom: 1px solid var(--line);
+      font-size: 11px;
+    }
+
+    .data-row:nth-of-type(even) { background: var(--row-alt); }
+    .data-row.waterfall { min-height: 144px; padding-block: 10px; }
+    .data-row.processing { box-shadow: inset 0 0 0 1px rgba(97, 188, 228, .5); }
+    .data-row.processing .placements-cell { opacity: .55; pointer-events: none; }
+
+    .rail {
+      width: 6px;
+      height: calc(100% - 22px);
+      min-height: 45px;
+      align-self: stretch;
+      justify-self: center;
+      margin-block: 11px;
+      border-radius: 1px;
+      background: var(--green);
+      box-shadow: 0 0 4px rgba(68, 208, 89, .3);
+    }
+
+    .row-selector {
+      width: 17px;
+      height: 17px;
+      justify-self: center;
+      border: 2px solid #eff4f8;
+      border-radius: 2px;
+    }
+
+    .network-name { padding-left: 12px; font-weight: 600; }
+
+    .account-box {
+      width: 190px;
+      height: 38px;
+      padding: 0 10px;
+      display: flex;
+      align-items: center;
+      border: 1px solid #4f5054;
+      border-radius: 4px;
+      color: #f1f1f1;
+      background: #29292b;
+      box-shadow: inset 0 0 5px rgba(0,0,0,.3);
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .small-close { width: 13px; height: 13px; margin-left: auto; position: relative; }
+    .small-close::before,
+    .small-close::after { width: 16px; left: -1px; top: 6px; }
+
+    .account-box .drop {
+      margin-left: 13px;
+      border: 5px solid transparent;
+      border-top-color: #ededed;
+      transform: translateY(3px);
+    }
+
+    .role-pill {
+      width: fit-content;
+      padding: 5px 7px;
+      border: 1px solid #2c5b37;
+      border-radius: 4px;
+      color: #5ed16d;
+      background: #263b29;
+      font-size: 11px;
+    }
+
+    .monetization { font-weight: 600; }
+    .monetization small { display: block; margin-top: 4px; color: #7f8589; font-weight: 400; }
+
+    .placement-lines {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 9px;
+    }
+
+    .placement-line {
+      min-height: 29px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      position: relative;
+    }
+
+    .badge {
+      height: 25px;
+      min-width: 21px;
+      padding: 0 5px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 4px;
+      color: #f4fff6;
+      background: #52c963;
+      box-shadow: 0 0 5px rgba(66, 205, 86, .35);
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .chip {
+      height: 23px;
+      padding: 0 8px;
+      display: inline-flex;
+      align-items: center;
+      border: 1px solid #18506a;
+      border-radius: 3px;
+      color: #56b6e5;
+      background: #263037;
+      box-shadow: inset 0 0 4px rgba(11, 25, 32, .8);
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .unit-chip {
+      height: 25px;
+      padding: 0 8px;
+      position: relative;
+      border: 1px solid #614b23;
+      border-radius: 3px;
+      color: #d9aa45;
+      background: #302c24;
+      box-shadow: inset 0 0 4px rgba(11, 25, 32, .8);
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .unit-chip:hover { border-color: #b48b37; background: #393326; }
+    .unit-chip.pending { border-color: #b78532; box-shadow: 0 0 0 1px rgba(216,167,62,.18); }
+    .unit-chip.pending::after {
+      content: "";
+      width: 5px;
+      height: 5px;
+      position: absolute;
+      top: -3px;
+      right: -3px;
+      border-radius: 50%;
+      background: var(--amber);
+    }
+
+    .unit-tombstone {
+      height: 25px;
+      padding: 0 5px 0 8px;
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      border: 1px dashed #9a6265;
+      border-radius: 3px;
+      color: #be8d90;
+      background: #38292a;
+    }
+
+    .unit-tombstone del { opacity: .72; }
+    .undo-button { padding: 2px 5px; border: 0; color: #ffb8bb; background: transparent; font-size: 9px; font-weight: 700; }
+
+    .add-unit {
+      height: 25px;
+      padding: 0 8px;
+      border: 1px dashed #376d6a;
+      border-radius: 3px;
+      color: #56c6c0;
+      background: #283332;
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .add-unit:hover { border-style: solid; background: #2d3e3d; }
+
+    .editor {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .floor-input {
+      width: 68px;
+      height: 27px;
+      padding: 0 7px;
+      border: 1px solid #6bb8d8;
+      border-radius: 3px;
+      color: #fff;
+      background: #222b31;
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .editor-button {
+      width: 26px;
+      height: 26px;
+      padding: 0;
+      border: 1px solid #4c575c;
+      border-radius: 3px;
+      color: #e9eef0;
+      background: #343a3d;
+      font-weight: 700;
+    }
+
+    .editor-button.save { border-color: #34743b; color: #74dc7f; }
+    .editor-button.delete { border-color: #7f4448; color: #ff9297; background: #432b2d; }
+    .editor-error {
+      max-width: 245px;
+      position: absolute;
+      left: 74px;
+      top: 26px;
+      z-index: 2;
+      padding: 5px 7px;
+      border: 1px solid #8f474b;
+      border-radius: 3px;
+      color: #ffd4d6;
+      background: #4a292c;
+      box-shadow: 0 3px 10px rgba(0,0,0,.28);
+      font-size: 10px;
+    }
+
+    .params-cell { color: #7e8589; }
+
+    .status-list {
+      width: 190px;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .status-line {
+      min-height: 15px;
+      display: grid;
+      grid-template-columns: 28px 10px minmax(0, 1fr);
+      align-items: center;
+      gap: 7px;
+      color: #8e9497;
+      font-size: 10px;
+      line-height: 1;
+      white-space: nowrap;
+      cursor: help;
+    }
+
+    .status-line:focus-visible {
+      border-radius: 2px;
+      outline: 1px solid #79cfe9;
+      outline-offset: 2px;
+    }
+
+    .status-system { color: #a9b0b4; font-size: 9px; font-weight: 700; letter-spacing: .35px; }
+
+    .status-dot {
+      width: 7px;
+      height: 7px;
+      display: inline-block;
+      border-radius: 50%;
+      background: #74797c;
+      box-shadow: 0 0 4px rgba(116, 121, 124, .45);
+    }
+
+    .status-line.done { color: #769a79; }
+    .status-line.done .status-dot { background: var(--green); box-shadow: 0 0 5px rgba(80, 211, 94, .55); }
+    .status-line.error { color: #c67c80; }
+    .status-line.error .status-dot { background: var(--red); box-shadow: 0 0 5px rgba(239, 106, 112, .55); }
+    .status-line.pending { color: #b99a5a; }
+    .status-line.pending .status-dot { background: var(--amber); box-shadow: 0 0 5px rgba(216, 167, 62, .55); }
+    .status-line.running { color: #7da9ba; }
+    .status-line.running .status-dot { background: var(--cyan); animation: pulse 1s ease-in-out infinite; }
+    .status-line.waiting { color: #85898b; }
+    .status-line.waiting .status-dot { background: #85898b; }
+    .status-line.na { color: #606568; }
+    .status-line.na .status-dot { border: 1px solid #676d70; background: transparent; box-shadow: none; }
+
+    @keyframes pulse {
+      50% { opacity: .35; box-shadow: 0 0 8px rgba(97, 188, 228, .8); }
+    }
+
+    .status-tooltip {
+      width: min(330px, calc(100vw - 24px));
+      position: fixed;
+      z-index: 40;
+      padding: 10px 12px;
+      border: 1px solid #52595d;
+      border-radius: 4px;
+      color: #dbe2e5;
+      background: #202426;
+      box-shadow: 0 8px 24px rgba(0,0,0,.42);
+      font-size: 11px;
+      line-height: 1.45;
+      opacity: 0;
+      transform: translateY(3px);
+      pointer-events: none;
+      transition: opacity .12s ease, transform .12s ease;
+    }
+
+    .status-tooltip.show { opacity: 1; transform: translateY(0); }
+    .status-tooltip strong { display: block; margin-bottom: 4px; color: #f0f3f4; }
+    .status-tooltip span { color: #aeb8bc; }
+
+    .operation-meta { color: #8c959a; font-size: 9px; }
+
+    .modal-backdrop {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 20;
+      place-items: center;
+      padding: 20px;
+      background: rgba(12, 18, 25, .72);
+      backdrop-filter: blur(2px);
+    }
+
+    .modal-backdrop.open { display: grid; }
+
+    .modal {
+      width: 430px;
+      padding: 22px;
+      border: 1px solid #666c70;
+      border-radius: 7px;
+      color: #e9eef0;
+      background: #292c2e;
+      box-shadow: 0 18px 55px rgba(0,0,0,.48);
+    }
+
+    .modal h2 { margin: 0 0 10px; font-size: 18px; }
+    .modal p { margin: 8px 0; color: #b8c0c4; line-height: 1.5; }
+    .unit-summary { margin: 14px 0; padding: 10px; border-radius: 4px; background: #222526; }
+    .unit-summary b { color: var(--amber); }
+    .modal-note { color: #efbdc0 !important; font-size: 11px; }
+    .modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 18px; }
+    .modal-button { min-height: 32px; padding: 0 12px; border: 1px solid #5d6265; border-radius: 3px; color: #e9edef; background: #373a3c; font-weight: 700; }
+    .modal-button.danger { border-color: #984c51; color: #fff; background: #8d3f44; }
+
+    .toast {
+      min-width: 280px;
+      max-width: 430px;
+      position: fixed;
+      right: 20px;
+      bottom: 20px;
+      z-index: 30;
+      padding: 12px 14px;
+      border: 1px solid #4d7774;
+      border-radius: 5px;
+      color: #e9ffff;
+      background: #244642;
+      box-shadow: 0 10px 28px rgba(0,0,0,.35);
+      opacity: 0;
+      transform: translateY(12px);
+      pointer-events: none;
+      transition: .2s ease;
+    }
+
+    .toast.show { opacity: 1; transform: translateY(0); }
+
+    @media (max-width: 1400px) {
+      html, body, .app { min-width: 1240px; }
+      .table { overflow-x: auto; }
+      .table-grid { grid-template-columns: 30px 44px 90px 195px 86px 106px 500px 92px 205px; }
+      .account-box { width: 175px; }
+      .status-list { width: 185px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="app" aria-label="Interactive PSVPortal application configuration prototype">
+    <header class="topbar">
+      <span class="hamburger" aria-hidden="true"></span>
+      <span class="brand">BlueSite</span>
+      <span class="prototype-label">interactive prototype</span>
+      <span class="user">DEMO USER</span>
+    </header>
+
+    <section class="workspace">
+      <nav class="breadcrumbs" aria-label="Breadcrumb">
+        <span>Home</span><span class="crumb-arrow"></span>
+        <span>CAS.AI</span><span class="crumb-arrow"></span>
+        <span class="current">New Applications</span>
+      </nav>
+
+      <section class="intro">
+        <div class="store-block">
+          <div class="store-copy">
+            <div class="eyebrow">STORE ID:</div>
+            <div class="store-id">com.example.bluesite.demo</div>
+          </div>
+          <button class="sync-button" type="button" id="synchronizeButton">SYNCHRONIZE</button>
+        </div>
+
+        <aside class="network-config">
+          <div class="network-label">APP NET CONFIG <span class="hint">(presets):</span></div>
+          <div class="preset-select">Full MAX</div>
+          <button class="update-top" id="topUpdateButton" type="button" disabled>UPDATE NETWORKS</button>
+        </aside>
+      </section>
+
+      <section class="details">
+        <div class="detail-row app-name"><div class="detail-label">APP NAME:</div><div class="detail-value">BlueSite — Unit-Floor demo</div></div>
+        <div class="detail-row store-name">
+          <div class="detail-label">STORE NAME:</div>
+          <div class="detail-value segments store-tabs"><span class="off">Amazon</span><span class="pipe">|</span><span>Android</span><span class="pipe">|</span><span class="off">Huawei</span><span class="pipe">|</span><span class="off">iOS</span><span class="pipe">|</span><span class="off">RuStore</span><span class="pipe">|</span><span class="off">Samsung Galaxystore</span><span class="pipe">|</span><span class="off">Xiaomi</span></div>
+        </div>
+        <div class="detail-row maturity"><div class="detail-label">MATURITY:</div><div class="detail-value select-box"><span>Adult</span><span class="close"></span><span class="chevron"></span></div></div>
+        <div class="detail-row placements"><div class="detail-label">PLACEMENTS:</div><div class="detail-value segments"><span>Banner</span><span class="pipe">|</span><span>Banner_native</span><span class="pipe">|</span><span>Interstitial</span><span class="pipe">|</span><span>Rewarded</span><span class="pipe">|</span><span class="off">Native</span><span class="pipe">|</span><span class="off">App_open</span><span class="pipe">|</span><span class="off">Mrec</span><span class="pipe">|</span><span class="off">Mrec_native</span></div></div>
+        <div class="detail-row orientation"><div class="detail-label">ORIENTATION:</div><div class="detail-value segments"><span class="off">Portrait</span><span class="pipe">|</span><span>Landscape</span><span class="pipe">|</span><span class="off">Both-portrait</span><span class="pipe">|</span><span class="off">Both-landscape</span></div></div>
+        <div class="detail-row client"><div class="detail-label">Client:</div><div class="detail-value">BlueSite Demo (demo@example.com)</div></div>
+        <div class="detail-row admob"><div class="detail-label">AdmobAppId:</div><div class="detail-value">ca-app-pub-0000000000000000~0000000000</div></div>
+      </section>
+
+      <section class="change-bar" id="changeBar" aria-live="polite">
+        <span class="change-dot"></span>
+        <span class="change-title" id="changeTitle">No pending changes</span>
+        <span class="change-hint" id="changeHint">Unit-Floors are synchronized</span>
+        <span class="bar-spacer"></span>
+        <button class="bar-button" id="reviewButton" type="button" disabled>REVIEW CHANGES</button>
+        <button class="bar-button primary" id="updateButton" type="button" disabled>UPDATE NETWORKS</button>
+      </section>
+      <section class="review-panel" id="reviewPanel" aria-label="Pending changes review">
+        <ul class="review-list" id="reviewList"></ul>
+      </section>
+
+      <section class="table" aria-label="Configured ad networks">
+        <div class="table-head table-grid">
+          <div class="th-network">NETWORK</div>
+          <div class="th-account">ACCOUNT</div>
+          <div class="th-role">ROLE</div>
+          <div class="th-monetization">MONETIZATION</div>
+          <div class="th-placements">PLACEMENTS</div>
+          <div class="th-params">PARAMS</div>
+          <div class="th-status">STATUS</div>
+        </div>
+
+        <div class="data-row table-grid" data-row-id="admob-bidding">
+          <div class="rail"></div><div class="row-selector"></div><div class="network-name">AdMob</div>
+          <div class="account-box">AdMob Demo<span class="small-close"></span><span class="drop"></span></div>
+          <div class="role-pill">network</div><div class="monetization">bidding<small>floors not used</small></div>
+          <div class="placement-lines placements-cell"><div class="placement-line"><span class="badge">B</span><span class="chip">MAX</span><span class="badge">I</span><span class="chip">MAX</span><span class="badge">R</span><span class="chip">MAX</span></div></div>
+          <div class="params-cell">—</div><div id="status-admob-bidding"></div>
+        </div>
+
+        <div class="data-row waterfall table-grid" data-row-id="admob-waterfall">
+          <div class="rail"></div><div class="row-selector"></div><div class="network-name">AdMob</div>
+          <div class="account-box">AdMob Demo<span class="small-close"></span><span class="drop"></span></div>
+          <div class="role-pill">network</div><div class="monetization">waterfall<small>click a floor to edit</small></div>
+          <div class="placement-lines placements-cell" id="waterfallPlacements"></div>
+          <div class="params-cell">API</div><div id="status-admob-waterfall"></div>
+        </div>
+
+        <div class="data-row table-grid" data-row-id="inmobi-bidding">
+          <div class="rail"></div><div class="row-selector"></div><div class="network-name">InMobi</div>
+          <div class="account-box">InMobi Demo<span class="small-close"></span><span class="drop"></span></div>
+          <div class="role-pill">network</div><div class="monetization">bidding<small>floors not used</small></div>
+          <div class="placement-lines placements-cell"><div class="placement-line"><span class="badge">B</span><span class="chip">CAS</span><span class="badge">BN</span><span class="chip">CAS</span><span class="badge">I</span><span class="chip">CAS</span><span class="badge">R</span><span class="chip">CAS</span></div></div>
+          <div class="params-cell">API</div><div id="status-inmobi-bidding"></div>
+        </div>
+      </section>
+    </section>
+  </main>
+
+  <div class="modal-backdrop" id="deleteModal" role="dialog" aria-modal="true" aria-labelledby="deleteTitle">
+    <div class="modal">
+      <h2 id="deleteTitle">Delete Unit-Floor?</h2>
+      <p>This unit will be marked for deletion and sent with the next Update Networks run.</p>
+      <div class="unit-summary" id="deleteSummary"></div>
+      <p class="modal-note">1C currently cannot delete units. After network deletion its 1C status will require manual resolution.</p>
+      <div class="modal-actions"><button class="modal-button" id="cancelDelete" type="button">CANCEL</button><button class="modal-button danger" id="confirmDelete" type="button">DELETE UNIT</button></div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <div class="status-tooltip" id="statusTooltip" role="tooltip"><strong></strong><span></span></div>
+
+  <script>
+    (() => {
+      const formatNames = { B: "Banner", I: "Interstitial", R: "Rewarded" };
+      const state = {
+        units: {
+          B: [unit("B-10482", "x1.00"), unit("B-10483", "x1.60"), unit("B-10484", "x3.25")],
+          I: [unit("I-20511", "x1.00"), unit("I-20512", "x1.60"), unit("I-20513", "x3.25")],
+          R: [unit("R-30641", "x1.00"), unit("R-30642", "x1.60"), unit("R-30643", "x3.25")]
+        },
+        editing: null,
+        deleteTarget: null,
+        reviewOpen: false,
+        processing: false,
+        statuses: {
+          "admob-bidding": status("Recorded 1C", "done", "na", "done"),
+          "admob-waterfall": status("Partial error", "error", "done", "waiting"),
+          "inmobi-bidding": status("Connected", "done", "na", "done")
+        },
+        logs: {
+          "admob-bidding": [log("Network", "done", "Bidding configuration confirmed", "AdMob · AdMob Demo", "Completed")],
+          "admob-waterfall": [
+            log("Mediation", "done", "Edit floor · Banner · x1.60 → x2.40", "CAS · 13:41", "Completed"),
+            log("Network", "error", "Banner · Unit ID B-10483 · requested x2.40", "Price already exists · NET-1842", "Needs attention")
+          ],
+          "inmobi-bidding": [log("Network", "done", "Bidding units synchronized", "InMobi · InMobi Demo", "Completed")]
+        }
+      };
+
+      const els = {
+        placements: document.getElementById("waterfallPlacements"),
+        changeBar: document.getElementById("changeBar"),
+        changeTitle: document.getElementById("changeTitle"),
+        changeHint: document.getElementById("changeHint"),
+        reviewButton: document.getElementById("reviewButton"),
+        reviewPanel: document.getElementById("reviewPanel"),
+        reviewList: document.getElementById("reviewList"),
+        updateButton: document.getElementById("updateButton"),
+        topUpdateButton: document.getElementById("topUpdateButton"),
+        deleteModal: document.getElementById("deleteModal"),
+        deleteSummary: document.getElementById("deleteSummary"),
+        cancelDelete: document.getElementById("cancelDelete"),
+        confirmDelete: document.getElementById("confirmDelete"),
+        toast: document.getElementById("toast"),
+        statusTooltip: document.getElementById("statusTooltip")
+      };
+
+      function unit(id, price) {
+        return { id, price, originalPrice: price, change: null };
+      }
+
+      function status(overall, net, med, oneC) {
+        return { overall, net, med, oneC };
+      }
+
+      function log(system, type, text, meta, result) {
+        return { system, type, text, meta, result };
+      }
+
+      function pendingUnits() {
+        return Object.entries(state.units).flatMap(([format, units]) => units.filter(item => item.change).map(item => ({ format, ...item })));
+      }
+
+      function statusLabel(value, system) {
+        if (value === "done" && system === "1С") return "Recorded";
+        return {
+          done: "Completed", error: "Error", pending: "Pending update",
+          running: "In progress", waiting: "Waiting", na: "Not required"
+        }[value];
+      }
+
+      function renderStatus(rowId) {
+        const target = document.getElementById(`status-${rowId}`);
+        const item = state.statuses[rowId];
+        const lines = [["NET", item.net], ["MED", item.med], ["1С", item.oneC]].map(([name, value]) => {
+          const label = statusLabel(value, name);
+          const details = statusDetails(rowId, name, value);
+          return `<span class="status-line ${value}" tabindex="0" data-system="${name}" data-status="${label}" data-tooltip="${escapeHtml(details)}" aria-label="${name}: ${label}. ${escapeHtml(details)}"><span class="status-system">${name}</span><span class="status-dot" aria-hidden="true"></span><span>${label}</span></span>`;
+        }).join("");
+        target.innerHTML = `<div class="status-list" aria-label="${escapeHtml(item.overall)}">${lines}</div>`;
+      }
+
+      function statusDetails(rowId, system, value) {
+        const account = rowId === "inmobi-bidding" ? "InMobi · InMobi Demo" : "AdMob · AdMob Demo";
+        const externalName = system === "NET" ? "Network" : system === "MED" ? "Mediation" : "1C";
+        const matchingLog = state.logs[rowId].find(item => item.system === externalName && (value !== "error" || item.type === "error"));
+        if (matchingLog) return `${matchingLog.text}. ${matchingLog.meta}. Result: ${matchingLog.result}.`;
+        if (value === "pending") return `${account}. Changes are saved in BlueSite and will be applied after Update Networks.`;
+        if (value === "running") return `${account}. The operation is currently running in ${externalName}.`;
+        if (value === "waiting") return `${account}. Waiting for mandatory external operations to complete.`;
+        if (value === "na") return `${externalName} is not required for this configuration.`;
+        if (value === "error" && system === "1С") return `${account}. Unit deletion is not supported in 1C. Manual resolution is required.`;
+        return `${account}. ${externalName} confirmed the latest configuration.`;
+      }
+
+      function renderAllStatuses() {
+        Object.keys(state.statuses).forEach(renderStatus);
+      }
+
+      function renderFloors() {
+        els.placements.innerHTML = Object.entries(state.units).map(([format, units]) => {
+          const unitHtml = units.map(item => {
+            if (item.change === "delete") {
+              return `<span class="unit-tombstone"><del>${item.price}</del><button class="undo-button" type="button" data-action="undo" data-format="${format}" data-id="${item.id}" aria-label="Undo deletion of ${item.price}">UNDO</button></span>`;
+            }
+            if (state.editing && state.editing.format === format && state.editing.id === item.id) return editorHtml(format, item.id, state.editing.value, state.editing.error);
+            const pending = item.change ? " pending" : "";
+            return `<button class="unit-chip${pending}" type="button" data-action="edit" data-format="${format}" data-id="${item.id}" title="Edit ${formatNames[format]} floor · Unit ID ${item.id}">${item.price}</button>`;
+          }).join("");
+          const adding = state.editing && state.editing.format === format && state.editing.mode === "add" ? editorHtml(format, "new", state.editing.value, state.editing.error) : `<button class="add-unit" type="button" data-action="add" data-format="${format}">+ FLOOR</button>`;
+          return `<div class="placement-line"><span class="badge">${format}</span><span class="chip">CAS</span>${unitHtml}${adding}</div>`;
+        }).join("");
+
+        const input = els.placements.querySelector(".floor-input");
+        if (input) {
+          input.focus();
+          input.setSelectionRange(input.value.length, input.value.length);
+        }
+      }
+
+      function editorHtml(format, id, value, error) {
+        const deleteButton = id === "new" ? "" : '<button class="editor-button delete" type="button" data-action="delete-edit" title="Delete unit" aria-label="Delete unit">⌫</button>';
+        return `<span class="editor"><input class="floor-input" value="${escapeHtml(value)}" aria-label="${id === "new" ? "New" : "Edit"} ${formatNames[format]} floor" data-editor-input><button class="editor-button save" type="button" data-action="save-edit" title="Save">✓</button><button class="editor-button" type="button" data-action="cancel-edit" title="Cancel">×</button>${deleteButton}</span>${error ? `<span class="editor-error">${escapeHtml(error)}</span>` : ""}`;
+      }
+
+      function escapeHtml(value) {
+        return String(value).replace(/[&<>"]/g, char => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[char]));
+      }
+
+      function normalizePrice(raw) {
+        const cleaned = raw.trim().toLowerCase().replace(",", ".");
+        const match = cleaned.match(/^x(\d+(?:\.\d{1,2})?)$/);
+        if (!match) return null;
+        const value = Number(match[1]);
+        if (!Number.isFinite(value) || value <= 0 || value > 999) return null;
+        return `x${value.toFixed(2)}`;
+      }
+
+      function saveEdit() {
+        if (!state.editing) return;
+        const input = els.placements.querySelector("[data-editor-input]");
+        const price = normalizePrice(input ? input.value : state.editing.value);
+        if (!price) return editError("Use the preset format, for example x1.25");
+        const list = state.units[state.editing.format];
+        if (list.some(item => item.price === price && item.id !== state.editing.id && item.change !== "delete")) return editError(`${price} already exists for ${formatNames[state.editing.format]}`);
+
+        if (state.editing.mode === "add") {
+          list.push({ id: `draft-${Date.now()}`, price, originalPrice: null, change: "add" });
+          toast(`Added ${formatNames[state.editing.format]} floor ${price} to pending changes`);
+        } else {
+          const item = list.find(unitItem => unitItem.id === state.editing.id);
+          if (!item || item.price === price) {
+            state.editing = null;
+            renderFloors();
+            return;
+          }
+          item.price = price;
+          if (item.change !== "add") item.change = item.price === item.originalPrice ? null : "edit";
+          toast(`Updated ${formatNames[state.editing.format]} floor to ${price}`);
+        }
+        state.editing = null;
+        markPending();
+        render();
+      }
+
+      function editError(message) {
+        state.editing.error = message;
+        const input = els.placements.querySelector("[data-editor-input]");
+        if (input) state.editing.value = input.value;
+        renderFloors();
+      }
+
+      function markPending() {
+        const count = pendingUnits().length;
+        if (!count) return;
+        state.statuses["admob-waterfall"] = status("Pending update", "pending", "pending", "waiting");
+        state.logs["admob-waterfall"] = pendingUnits().map(item => {
+          const action = item.change === "add" ? "Add" : item.change === "delete" ? "Delete" : "Edit";
+          const value = item.change === "edit" ? `${item.originalPrice} → ${item.price}` : item.price;
+          return log("BlueSite", "pending", `${action} floor · ${formatNames[item.format]} · ${value}`, `AdMob · AdMob Demo · ${item.id}`, "Pending update");
+        });
+      }
+
+      function renderChangeBar() {
+        const pending = pendingUnits();
+        const count = pending.length;
+        els.changeBar.classList.toggle("has-changes", count > 0);
+        els.changeTitle.textContent = count ? `${count} pending change${count === 1 ? "" : "s"}` : "No pending changes";
+        els.changeHint.textContent = count ? "Saved in BlueSite · not yet applied externally" : state.processing ? "External systems are processing changes" : "Unit-Floors are synchronized";
+        els.reviewButton.disabled = !count || state.processing;
+        els.updateButton.disabled = !count || state.processing;
+        els.topUpdateButton.disabled = !count || state.processing;
+        els.updateButton.textContent = state.processing ? "UPDATING…" : `UPDATE NETWORKS${count ? ` (${count})` : ""}`;
+        els.topUpdateButton.textContent = state.processing ? "UPDATING…" : `UPDATE NETWORKS${count ? ` (${count})` : ""}`;
+        els.reviewPanel.classList.toggle("open", state.reviewOpen && count > 0);
+        els.reviewButton.textContent = state.reviewOpen ? "HIDE CHANGES" : "REVIEW CHANGES";
+        els.reviewList.innerHTML = pending.map(item => {
+          const kind = item.change === "add" ? "ADD" : item.change === "delete" ? "DELETE" : "EDIT";
+          const description = item.change === "edit" ? `${item.originalPrice} → ${item.price}` : item.price;
+          return `<li><span class="review-kind">${kind}</span><span>AdMob · ${formatNames[item.format]} · ${description} · <span class="operation-meta">${item.id}</span></span></li>`;
+        }).join("");
+      }
+
+      function render() {
+        renderFloors();
+        renderChangeBar();
+        renderAllStatuses();
+        document.querySelector('[data-row-id="admob-waterfall"]').classList.toggle("processing", state.processing);
+      }
+
+      function openDelete(format, id) {
+        const item = state.units[format].find(unitItem => unitItem.id === id);
+        if (!item) return;
+        state.deleteTarget = { format, id };
+        els.deleteSummary.innerHTML = `<b>${formatNames[format]} · ${item.price}</b><br>AdMob · AdMob Demo<br>Unit ID: ${item.id}`;
+        els.deleteModal.classList.add("open");
+        els.confirmDelete.focus();
+      }
+
+      function confirmDelete() {
+        if (!state.deleteTarget) return;
+        const { format, id } = state.deleteTarget;
+        const list = state.units[format];
+        const item = list.find(unitItem => unitItem.id === id);
+        if (!item) return closeDelete();
+        if (item.change === "add") {
+          state.units[format] = list.filter(unitItem => unitItem.id !== id);
+        } else {
+          item.change = "delete";
+        }
+        closeDelete();
+        state.editing = null;
+        if (pendingUnits().length) markPending();
+        else state.statuses["admob-waterfall"] = status("Recorded 1C", "done", "done", "done");
+        toast(`${formatNames[format]} floor ${item.price} marked for deletion`);
+        render();
+      }
+
+      function closeDelete() {
+        state.deleteTarget = null;
+        els.deleteModal.classList.remove("open");
+      }
+
+      function undo(format, id) {
+        const list = state.units[format];
+        const item = list.find(unitItem => unitItem.id === id);
+        if (!item) return;
+        if (item.change === "add") state.units[format] = list.filter(unitItem => unitItem.id !== id);
+        else {
+          item.price = item.originalPrice;
+          item.change = null;
+        }
+        if (pendingUnits().length) markPending();
+        else {
+          state.statuses["admob-waterfall"] = status("Recorded 1C", "done", "done", "done");
+          state.logs["admob-waterfall"] = [log("1C", "done", "All Unit-Floors match external systems", "AdMob · AdMob Demo", "Recorded 1C")];
+          state.reviewOpen = false;
+        }
+        toast("Pending change undone");
+        render();
+      }
+
+      function updateNetworks() {
+        const pending = pendingUnits();
+        if (!pending.length || state.processing) return;
+        const hasDelete = pending.some(item => item.change === "delete");
+        state.processing = true;
+        state.reviewOpen = false;
+        state.statuses["admob-waterfall"] = status("Updating external systems", "running", "running", "waiting");
+        state.logs["admob-waterfall"] = pending.map(item => log("Network", "pending", `${item.change.toUpperCase()} · ${formatNames[item.format]} · ${item.price}`, `Checking actual state · ${item.id}`, "Running"));
+        render();
+
+        window.setTimeout(() => {
+          state.statuses["admob-waterfall"] = status("Network complete · waiting for 1C", "done", "done", "running");
+          state.logs["admob-waterfall"] = pending.map(item => log("Network", "done", `${item.change.toUpperCase()} · ${formatNames[item.format]} · ${item.price}`, `Confirmed externally · ${item.id}`, "Completed"));
+          render();
+        }, 900);
+
+        window.setTimeout(() => {
+          let nextId = 70000;
+          Object.keys(state.units).forEach(format => {
+            state.units[format] = state.units[format].filter(item => item.change !== "delete").map(item => {
+              if (item.change === "add") item.id = `${format}-${nextId++}`;
+              item.originalPrice = item.price;
+              item.change = null;
+              return item;
+            });
+          });
+          state.processing = false;
+          if (hasDelete) {
+            state.statuses["admob-waterfall"] = status("Network complete · 1C blocked", "done", "done", "error");
+            state.logs["admob-waterfall"] = [
+              log("Network", "done", "Unit deletion confirmed", "AdMob · affected Unit ID archived", "Completed"),
+              log("Mediation", "done", "Configuration no longer references deleted unit", "CAS · confirmed", "Completed"),
+              log("1C", "error", "Delete Unit-Floor", "Deletion is not supported · 1C-DELETE-01", "Manual resolution")
+            ];
+            toast("Network updated. 1C deletion requires manual resolution.");
+          } else {
+            state.statuses["admob-waterfall"] = status("Recorded 1C", "done", "done", "done");
+            state.logs["admob-waterfall"] = [log("1C", "done", "All Unit-Floor changes recorded", "AdMob · AdMob Demo · just now", "Recorded 1C")];
+            toast("All external systems updated successfully");
+          }
+          render();
+        }, 1900);
+      }
+
+      let toastTimer;
+      function toast(message) {
+        window.clearTimeout(toastTimer);
+        els.toast.textContent = message;
+        els.toast.classList.add("show");
+        toastTimer = window.setTimeout(() => els.toast.classList.remove("show"), 2600);
+      }
+
+      function showStatusTooltip(line) {
+        const title = els.statusTooltip.querySelector("strong");
+        const description = els.statusTooltip.querySelector("span");
+        title.textContent = `${line.dataset.system} · ${line.dataset.status}`;
+        description.textContent = line.dataset.tooltip;
+        els.statusTooltip.classList.add("show");
+        const lineRect = line.getBoundingClientRect();
+        const tooltipRect = els.statusTooltip.getBoundingClientRect();
+        let left = lineRect.left - tooltipRect.width - 10;
+        if (left < 8) left = lineRect.right + 10;
+        left = Math.min(left, window.innerWidth - tooltipRect.width - 8);
+        const top = Math.max(8, Math.min(lineRect.top + (lineRect.height - tooltipRect.height) / 2, window.innerHeight - tooltipRect.height - 8));
+        els.statusTooltip.style.left = `${left}px`;
+        els.statusTooltip.style.top = `${top}px`;
+      }
+
+      function hideStatusTooltip() {
+        els.statusTooltip.classList.remove("show");
+      }
+
+      document.addEventListener("click", event => {
+        const button = event.target.closest("button[data-action]");
+        if (!button) return;
+        const action = button.dataset.action;
+        if (action === "add") {
+          state.editing = { mode: "add", format: button.dataset.format, id: "new", value: "x", error: null };
+          renderFloors();
+        }
+        if (action === "edit") {
+          const { format, id } = button.dataset;
+          const item = state.units[format].find(unitItem => unitItem.id === id);
+          if (item) state.editing = { mode: "edit", format, id, value: item.price, error: null };
+          renderFloors();
+        }
+        if (action === "save-edit") saveEdit();
+        if (action === "cancel-edit") { state.editing = null; renderFloors(); }
+        if (action === "delete-edit" && state.editing && state.editing.mode === "edit") openDelete(state.editing.format, state.editing.id);
+        if (action === "undo") undo(button.dataset.format, button.dataset.id);
+      });
+
+      document.addEventListener("mouseover", event => {
+        const line = event.target.closest(".status-line");
+        if (line) showStatusTooltip(line);
+      });
+
+      document.addEventListener("mouseout", event => {
+        const line = event.target.closest(".status-line");
+        if (line && !line.contains(event.relatedTarget)) hideStatusTooltip();
+      });
+
+      document.addEventListener("focusin", event => {
+        const line = event.target.closest(".status-line");
+        if (line) showStatusTooltip(line);
+      });
+
+      document.addEventListener("focusout", event => {
+        if (event.target.closest(".status-line")) hideStatusTooltip();
+      });
+
+      els.placements.addEventListener("dblclick", event => {
+        const button = event.target.closest(".unit-chip");
+        if (button) openDelete(button.dataset.format, button.dataset.id);
+      });
+
+      els.placements.addEventListener("keydown", event => {
+        if (!event.target.matches("[data-editor-input]")) return;
+        if (event.key === "Enter") saveEdit();
+        if (event.key === "Escape") { state.editing = null; renderFloors(); }
+        if (event.key === "Delete" && state.editing && state.editing.mode === "edit") openDelete(state.editing.format, state.editing.id);
+      });
+
+      els.reviewButton.addEventListener("click", () => { state.reviewOpen = !state.reviewOpen; renderChangeBar(); });
+      els.updateButton.addEventListener("click", updateNetworks);
+      els.topUpdateButton.addEventListener("click", updateNetworks);
+      els.cancelDelete.addEventListener("click", closeDelete);
+      els.confirmDelete.addEventListener("click", confirmDelete);
+      els.deleteModal.addEventListener("click", event => { if (event.target === els.deleteModal) closeDelete(); });
+      document.getElementById("synchronizeButton").addEventListener("click", () => toast("Application data synchronized"));
+
+      document.addEventListener("keydown", event => {
+        if (event.key === "Escape" && els.deleteModal.classList.contains("open")) closeDelete();
+      });
+
+      render();
+    })();
+  </script>
+</body>
+</html>
